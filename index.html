@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dia das Mulheres</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #2c2c2c;
+            margin: 0;
+            flex-direction: column;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 0;
+        }
+        .message-container {
+            position: relative;
+            z-index: 1; 
+            padding: 20px;
+            border-radius: 10px;
+        }
+        .message {
+            font-size: 2.5em;
+            color: white;
+            margin-top: 20px;
+        }
+        .sub-message {
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            color: white;
+            margin-top: 10px;
+            margin-left: 5%;
+            margin-right: 5%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="fireworks"></canvas>
+    <div class="message-container">
+        <div class="message">Feliz Dia das Mulheres!</div>
+        <div class="sub-message">Neste Dia da Mulher, celebremos a força, a resiliência e a beleza que residem em cada uma. Que cada mulher se sinta empoderada para perseguir seus sonhos, quebrando barreiras e construindo um mundo onde todas possam florescer. Que este dia seja um lembrete do valor e da capacidade de transformar o mundo.</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('fireworks');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function random(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function createFirework() {
+            let fireworks = [];
+            for (let i = 0; i < 3; i++) {
+                let xPosition;
+                do {
+                    xPosition = random(50, canvas.width - 50);
+                } while (xPosition > canvas.width * 0.3 && xPosition < canvas.width * 0.7);
+                
+                fireworks.push({
+                    x: xPosition,
+                    y: canvas.height,
+                    targetY: random(50, canvas.height / 2),
+                    color: `hsl(${random(0, 360)}, 100%, 60%)`,
+                    exploded: false
+                });
+            }
+            
+            function draw() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                fireworks.forEach((firework) => {
+                    if (!firework.exploded) {
+                        ctx.beginPath();
+                        ctx.moveTo(firework.x, firework.y);
+                        ctx.lineTo(firework.x, firework.y - 10);
+                        ctx.strokeStyle = firework.color;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                        firework.y -= 5;
+                        if (firework.y <= firework.targetY) firework.exploded = true;
+                    } else {
+                        for (let i = 0; i < 8; i++) {
+                            let angle = (Math.PI / 4) * i;
+                            let endX = firework.x + Math.cos(angle) * 20;
+                            let endY = firework.y + Math.sin(angle) * 20;
+                            
+                            ctx.beginPath();
+                            ctx.moveTo(firework.x, firework.y);
+                            ctx.lineTo(endX, endY);
+                            ctx.strokeStyle = firework.color;
+                            ctx.lineWidth = 2;
+                            ctx.setLineDash([5, 5]);
+                            ctx.stroke();
+                            ctx.setLineDash([]);
+                        }
+                    }
+                });
+                
+                if (fireworks.some(fw => !fw.exploded) || Math.random() > 0.05) {
+                    requestAnimationFrame(draw);
+                } else {
+                    setTimeout(createFirework, random(1000, 2000));
+                }
+            }
+            draw();
+        }
+
+        createFirework();
+    </script>
+</body>
+</html>
